@@ -44,7 +44,7 @@ spec:
     spec:
       containers:
       - name: learningapicontainer
-        image: izacontainerregistry.azurecr.io/learningapi:18
+        image: izacontainerregistry.azurecr.io/learningapi:21
         env:
         - name: ASPNETCORE_ENVIRONMENT
           value: Dev
