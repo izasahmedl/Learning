@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: learningapi
+  labels:
+    app: learningapi
+---
+apiVersion: "aadpodidentity.k8s.io/v1"
+kind: AzureIdentity
+metadata:
+  name: aks-identity
+  namespace: learningapi
+spec:
+  type: 0
+  resourceID: /subscriptions/767cc0c8-e73a-488c-9e0b-7f957c1a3b18/resourcegroups/identity/providers/Microsoft.ManagedIdentity/userAssignedIdentities/aks-identity
+  clientID: 1769bcb3-f544-403c-84a4-e23981b3dc7b
+---
+apiVersion: "aadpodidentity.k8s.io/v1"
+kind: AzureIdentityBinding
+metadata:
+  name: aks-identity
+  namespace: learningapi
+spec:
+  azureIdentity: aks-identity
+  selector: aks-identity
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: learningapi-deployment
+  namespace: learningapi
+  labels:
+     aadpodidbinding: aks-identity
+spec:
+  selector:
+    matchLabels:
+      app: learningapi
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: learningapi
+        aadpodidbinding: aks-identity
+    spec:
+      containers:
+      - name: learningapicontainer
+        image: izacontainerregistry.azurecr.io/learningapi:18
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: Dev
+        ports:
+        - containerPort: 80
